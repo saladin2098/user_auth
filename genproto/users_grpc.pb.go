@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion8
 const (
 	UserService_CreateUser_FullMethodName  = "/restaurant_protos.UserService/CreateUser"
 	UserService_GetUser_FullMethodName     = "/restaurant_protos.UserService/GetUser"
+	UserService_LoginUser_FullMethodName   = "/restaurant_protos.UserService/LoginUser"
 	UserService_UpdateUser_FullMethodName  = "/restaurant_protos.UserService/UpdateUser"
 	UserService_DeleteUser_FullMethodName  = "/restaurant_protos.UserService/DeleteUser"
 	UserService_GetAllUsers_FullMethodName = "/restaurant_protos.UserService/GetAllUsers"
@@ -32,6 +33,7 @@ const (
 type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *UserCreate, opts ...grpc.CallOption) (*User, error)
 	GetUser(ctx context.Context, in *ByUsername, opts ...grpc.CallOption) (*User, error)
+	LoginUser(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*Token, error)
 	UpdateUser(ctx context.Context, in *UserCreate, opts ...grpc.CallOption) (*Void, error)
 	DeleteUser(ctx context.Context, in *ById, opts ...grpc.CallOption) (*Void, error)
 	GetAllUsers(ctx context.Context, in *Void, opts ...grpc.CallOption) (*Users, error)
@@ -59,6 +61,16 @@ func (c *userServiceClient) GetUser(ctx context.Context, in *ByUsername, opts ..
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(User)
 	err := c.cc.Invoke(ctx, UserService_GetUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) LoginUser(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*Token, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Token)
+	err := c.cc.Invoke(ctx, UserService_LoginUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,6 +113,7 @@ func (c *userServiceClient) GetAllUsers(ctx context.Context, in *Void, opts ...g
 type UserServiceServer interface {
 	CreateUser(context.Context, *UserCreate) (*User, error)
 	GetUser(context.Context, *ByUsername) (*User, error)
+	LoginUser(context.Context, *LoginReq) (*Token, error)
 	UpdateUser(context.Context, *UserCreate) (*Void, error)
 	DeleteUser(context.Context, *ById) (*Void, error)
 	GetAllUsers(context.Context, *Void) (*Users, error)
@@ -116,6 +129,9 @@ func (UnimplementedUserServiceServer) CreateUser(context.Context, *UserCreate) (
 }
 func (UnimplementedUserServiceServer) GetUser(context.Context, *ByUsername) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedUserServiceServer) LoginUser(context.Context, *LoginReq) (*Token, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
 }
 func (UnimplementedUserServiceServer) UpdateUser(context.Context, *UserCreate) (*Void, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
@@ -171,6 +187,24 @@ func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).GetUser(ctx, req.(*ByUsername))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).LoginUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_LoginUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).LoginUser(ctx, req.(*LoginReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -243,6 +277,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUser",
 			Handler:    _UserService_GetUser_Handler,
+		},
+		{
+			MethodName: "LoginUser",
+			Handler:    _UserService_LoginUser_Handler,
 		},
 		{
 			MethodName: "UpdateUser",

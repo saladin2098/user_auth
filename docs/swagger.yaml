@@ -1,0 +1,122 @@
+definitions:
+  genproto.LoginReq:
+    properties:
+      Password:
+        type: string
+      Username:
+        type: string
+    type: object
+  genproto.Token:
+    properties:
+      AccessToken:
+        type: string
+      RefreshToken:
+        type: string
+    type: object
+  genproto.User:
+    properties:
+      Email:
+        type: string
+      Password:
+        type: string
+      Username:
+        type: string
+    type: object
+  genproto.UserCreate:
+    properties:
+      Email:
+        type: string
+      Id:
+        type: string
+      Password:
+        type: string
+      Username:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /user/info:
+    get:
+      consumes:
+      - application/json
+      description: This api GETS user by username
+      parameters:
+      - description: USERNAME
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: GET USER
+      tags:
+      - USER
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: This api logs  user in
+      parameters:
+      - description: LoginReq
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/genproto.Token'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Login USER
+      tags:
+      - USER
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: This api registers user
+      parameters:
+      - description: UserCreate
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.UserCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/genproto.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: REGISTER USER
+      tags:
+      - USER
+swagger: "2.0"
